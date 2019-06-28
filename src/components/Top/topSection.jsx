@@ -18,8 +18,24 @@ class TopSection extends React.Component{
         })
         );
     }
+
+    onLocationChange(e){
+        this.setState({
+            locationName: e.target.value,
+        });
+    }
+
+    onSelectCity(){
+        const { locationName } = this.state;
+        const {eventEmitter} = this.props;
+        eventEmitter.emit("updateWeather", locationName);
+        this.setState({isSelectLocationOpen:false});
+
+        
+    }
     render(){
         const { isSelectLocationOpen}= this.state;
+        const { eventEmitter } = this.props;
         return (
             <div className="top-container">
                 <div className="title">Weather</div>
@@ -35,10 +51,24 @@ class TopSection extends React.Component{
                            </button>
                         )}
                     </Reference>
-                    <Popper placement="right">
+                    <Popper placement="bottom">
                         {({ ref, style, placement, arrowProps }) => ( isSelectLocationOpen &&
-                            <div className="popup-container" ref={ref} style={style} data-placement={placement}>
-                            Popper element
+                            <div className="popup-container" 
+                                ref={ref} style={style} 
+                                data-placement={placement}>
+                            <div className="form-container">
+                                <label htmlFor="location-name">Location Name</label>
+                                <input 
+                                    type="text" 
+                                    id="location-name" 
+                                    placeholder="City Name"
+                                    onChange={this.onLocationChange.bind(this)}/>
+                                <button 
+                                    className="btn btn-select-location"
+                                    onClick={this.onSelectCity.bind(this)}>
+                                        Select
+                                </button>
+                            </div>
                             <div ref={arrowProps.ref} style={arrowProps.style} />
                             </div>
                         )}

@@ -11,14 +11,16 @@ class App extends React.Component {
     super(props);
     this.state = {
       cityName:"Doha",
-      foreCastDays:5,
+      numforecastDays:5,
       isLoading:true
+
     };
+    //this.getLocationWeather.bind(this);
   }
 
-  componentDidMount(){
-    const { cityName, foreCastDays} = this.state;
-    const URL = `http://api.apixu.com/v1/forecast.json?key= ${WEATHER_KEY} &q=${cityName}&days=${foreCastDays}`;
+  getLocationWeather(){
+    const { cityName, numforecastDays} = this.state;
+    const URL = `http://api.apixu.com/v1/forecast.json?key= ${WEATHER_KEY} &q=${cityName}&days=${numforecastDays}`;
     axios.get(URL)
     .then((res)=>{
       return res.data;
@@ -29,16 +31,28 @@ class App extends React.Component {
         temp_c: data.current.temp_c,
         isDay: data.current.is_day,
         text: data.current.condition.text,
-        iconURL: data.current.condition.icon
+        iconURL: data.current.condition.icon,
+        daysForecast: data.forecast.forecastday
       });
     })
     .catch((error)=>{
-      console.error("Cannot fetch weather data from API", error);
-    })
+      if(error) console.error("Cannot fetch weather data from API", error);
+    });
+  }
+
+  componentDidMount(){
+    const { eventEmitter } = this.props;
+
+    this.getLocationWeather();
+    eventEmitter.on("updateWeather", (data)=>{
+      this.setState({cityName: data}, ()=>this.getLocationWeather());
+      console.log("locationName", data);
+    });
   }
 
   render(){
-    const  { isLoading, cityName, temp_c, isDay, text, iconURL}= this.state;
+    const  { isLoading, cityName, temp_c, isDay, text, iconURL, daysForecast}= this.state;
+
     return (
       <div className="app-container">
         <div className="main-container">
@@ -51,11 +65,12 @@ class App extends React.Component {
               isDay={isDay}
               text= {text}
               iconURL={iconURL}
+              eventEmitter={this.props.eventEmitter}
             />
           </div>}
           
           <div className="bottom-section">
-            <BottomSection/>
+            <BottomSection daysForecast={daysForecast}/>
           </div>
         </div>
       </div>
