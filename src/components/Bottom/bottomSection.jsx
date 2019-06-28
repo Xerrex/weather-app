@@ -15,7 +15,7 @@ class BottomSection extends React.Component{
             <div className="inner-container">
                 {daysForecast &&
                     daysForecast.map((dayForecast, index)=> {
-                        return <ForecastDay key={index} day={dayForecast.day}/>
+                        return <ForecastDay key={index} forecast={dayForecast}/>
                 })}
             </div>
         </div>

@@ -1,16 +1,18 @@
 import React from "react";
-import sunny from '../../resources/sun.png'
 
 class Weather extends React.Component{
     constructor(props){
         super(props);
+        this.state={};
     }
 
     render(){
-        const { location, temp_c, isDay, text, iconURL} = this.props;
+        const { todays_date, location, temp_c, text, iconURL} = this.props;
         return(
             <div className="weather-container">
-                <div className="header">{location}</div>
+                <div className="header">
+                    {location} at {todays_date}
+                </div>
                 <div className="inner-container">
                     <div className="image">
                         <img src={iconURL} alt=""/>

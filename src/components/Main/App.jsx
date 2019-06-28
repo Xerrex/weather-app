@@ -11,7 +11,7 @@ class App extends React.Component {
     super(props);
     this.state = {
       cityName:"Doha",
-      numforecastDays:5,
+      numforecastDays:7,
       isLoading:true
 
     };
@@ -28,6 +28,7 @@ class App extends React.Component {
     .then((data)=> {
       this.setState({
         isLoading:false,
+        todays_date:data.location.localtime,
         temp_c: data.current.temp_c,
         isDay: data.current.is_day,
         text: data.current.condition.text,
@@ -51,7 +52,7 @@ class App extends React.Component {
   }
 
   render(){
-    const  { isLoading, cityName, temp_c, isDay, text, iconURL, daysForecast}= this.state;
+    const  { isLoading, todays_date, cityName, temp_c, isDay, text, iconURL, daysForecast}= this.state;
 
     return (
       <div className="app-container">
@@ -60,6 +61,7 @@ class App extends React.Component {
           {!isLoading &&
           <div className="top-section">
             <TopSection
+              todays_date={todays_date}
               location={cityName}
               temp_c={temp_c}
               isDay={isDay}

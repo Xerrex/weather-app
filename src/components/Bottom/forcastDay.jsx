@@ -7,17 +7,22 @@ class ForecastDay extends React.Component{
     }
 
     render(){
-        const {day} = this.props;
+        const {forecast} = this.props;
+        const today = new Date(`${forecast.date}`);
+        const days=["Sun", "Mon", "Tue","Wed", "Thurs","Fri", "Sat"];
+
         return <div className="forecastday-container">
             <div className="image">
-                <img src={day.condition.icon} alt=""/>
+                <img src={forecast.day.condition.icon} alt=""/>
             </div>
             <div className="text">
-                {day.mintemp_c}&#176; - {day.maxtemp_c}&#176;
+                {days[today.getDay()]}
                 <br/>
-                hum:{day.avghumidity}%
+                {forecast.day.mintemp_c}&#176; - {forecast.day.maxtemp_c}&#176;
                 <br/>
-                {day.condition.text}
+                Humdity: {forecast.day.avghumidity}%
+                <br/>
+                {forecast.day.condition.text}
             </div>
         </div>
     }
