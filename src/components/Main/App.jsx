@@ -5,7 +5,7 @@ import TopSection from "../Top/topSection";
 import BottomSection from "../Bottom/bottomSection";
 import API_ID from '../../resources/api_key'
 
-const appid = API_ID;
+const appID = API_ID;
 
 class App extends React.Component {
   constructor(props){
@@ -24,7 +24,7 @@ class App extends React.Component {
   getLocationWeather(){
     const { cityName, units} = this.state;
     const base_api_url ="https://api.openweathermap.org/data/2.5/weather?";
-    const params = `q=${cityName}&appid=${appid}&units=${units}`
+    const params = `q=${cityName}&appid=${appID}&units=${units}`
     const URL = `${base_api_url}${params}`;
 
     const base_iconURL = "http://openweathermap.org/img/wn/";
@@ -37,7 +37,7 @@ class App extends React.Component {
       const todays_date =this.getDateFromTimestamp(data.dt);
       const iconURL = `${base_iconURL}${data.weather[0].icon}${icon_size}`;
       const isDay = this.isDayCheck(data.dt, data.sys.sunrise);
-      console.log(isDay)
+      this.getLocationWeatherForecast(data.coord)
 
       this.setState({
         isLoading:false,
@@ -45,13 +45,38 @@ class App extends React.Component {
         temp_c: data.main.temp,
         isDay: isDay,
         text: data.weather[0].description,
-        iconURL: iconURL,
-        // daysForecast: data.forecast.forecastday
+        iconURL: iconURL
       });
     })
     .catch((error)=>{
       if(error) console.error("Cannot fetch weather data from API", error);
     });
+  }
+
+  getLocationWeatherForecast(coord){
+    const {lat, lon} = coord
+    //https://api.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lon}&exclude={part}&appid={API key}
+    const base_api_url = "https://api.openweathermap.org/data/2.5/onecall?"
+    let coords = `lat=${lat}&lon=${lon}`
+    let exclude = "&exclude=minutely,hourly,current,alerts"
+    let units = "&units=metric"
+    let appid = `&appid=${appID}`
+
+    let url = `${base_api_url}${coords}${exclude}${units}${appid}`
+
+    axios.get(url)
+    .then((res)=>{
+      return res.data
+    }).then((data)=>{
+      //here is where the works happen
+      this.setState({
+        daysForecast: data.daily
+      })
+      
+    }).catch((error)=>{
+      if(error) console.error("There was a problem fetching forecast data", error);
+    }); //end axios
+
   }
 
   getDateFromTimestamp(UNIX_timestamp){
