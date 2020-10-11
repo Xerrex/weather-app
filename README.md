@@ -16,7 +16,7 @@
   ```
 
 * Project requires an `API ID` obtain one [here](https://openweathermap.org/).
-* Create an `api_key.js` file in the `resources` folder.
+* Create an `api_key.js` file in the `src/resources` folder.
 * Add the following lines to the file
   ```javascript
   const API_ID = "Your-appid-here";
