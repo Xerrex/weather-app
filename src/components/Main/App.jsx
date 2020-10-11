@@ -3,42 +3,77 @@ import axios from "axios";
 import "./app.scss";
 import TopSection from "../Top/topSection";
 import BottomSection from "../Bottom/bottomSection";
+import API_ID from '../../resources/api_key'
 
-const WEATHER_KEY = "dc06ed8decc9484897f151423192506";
+const appid = API_ID;
 
 class App extends React.Component {
   constructor(props){
     super(props);
     this.state = {
       cityName:"Doha",
-      numforecastDays:7,
+      units:"metric",
       isLoading:true
 
     };
     //this.getLocationWeather.bind(this);
+    //this.getDateFromTimestamp.bind(this);
+    //this.isDayCheck.bind(this)
   }
 
   getLocationWeather(){
-    const { cityName, numforecastDays} = this.state;
-    const URL = `http://api.apixu.com/v1/forecast.json?key= ${WEATHER_KEY} &q=${cityName}&days=${numforecastDays}`;
+    const { cityName, units} = this.state;
+    const base_api_url ="https://api.openweathermap.org/data/2.5/weather?";
+    const params = `q=${cityName}&appid=${appid}&units=${units}`
+    const URL = `${base_api_url}${params}`;
+
+    const base_iconURL = "http://openweathermap.org/img/wn/";
+    const icon_size = "@2x.png";
     axios.get(URL)
     .then((res)=>{
       return res.data;
     })
     .then((data)=> {
+      const todays_date =this.getDateFromTimestamp(data.dt);
+      const iconURL = `${base_iconURL}${data.weather[0].icon}${icon_size}`;
+      const isDay = this.isDayCheck(data.dt, data.sys.sunrise);
+      console.log(isDay)
+
       this.setState({
         isLoading:false,
-        todays_date:data.location.localtime,
-        temp_c: data.current.temp_c,
-        isDay: data.current.is_day,
-        text: data.current.condition.text,
-        iconURL: data.current.condition.icon,
-        daysForecast: data.forecast.forecastday
+        todays_date: todays_date,
+        temp_c: data.main.temp,
+        isDay: isDay,
+        text: data.weather[0].description,
+        iconURL: iconURL,
+        // daysForecast: data.forecast.forecastday
       });
     })
     .catch((error)=>{
       if(error) console.error("Cannot fetch weather data from API", error);
     });
+  }
+
+  getDateFromTimestamp(UNIX_timestamp){
+    let a = new Date(UNIX_timestamp * 1000);
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const year = a.getFullYear();
+    const month = months[a.getMonth()];
+    const date = a.getDate();
+    const hour = a.getHours();
+    const min = a.getMinutes();
+    const sec = a.getSeconds();
+    const full_time = `${date} ${month} ${year} ${hour}:${min}:${sec}`;
+    return full_time;
+  }
+
+  isDayCheck(current_time, sunrise_time){
+    if (current_time < sunrise_time){
+        return false;
+    }
+    else{
+      return true;
+    }
   }
 
   componentDidMount(){
